@@ -1,28 +1,33 @@
-const form = document.querySelector('#searchForm')
+const form = document.querySelector('#searchForm');
+const resultsContainer = document.querySelector('#results');
+
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    deleteImages();
+    clearImages();
     const searchTerm = form.elements.query.value;
-    const configs = { params: { q: searchTerm }}
-    const res = await axios.get(`https://api.tvmaze.com/search/shows`, configs);
-    makeImages(res.data);
+    if (!searchTerm) return;
+
+    try {
+        const configs = { params: { q: searchTerm } }
+        const res = await axios.get(`https://api.tvmaze.com/search/shows`, configs);
+        makeImages(res.data);
+    } catch (e) {
+        console.error("Error fetching data", e);
+    }
+
     form.elements.query.value = "";
 })
 
 const makeImages = (shows) => {
-    for(let result of shows){
-        if(result.show.image){
+    for (let result of shows) {
+        if (result.show.image) {
             const img = document.createElement('IMG')
             img.src = result.show.image.medium;
-            document.body.append(img)
+            resultsContainer.append(img)
         }
     }
 }
 
-function deleteImages(){
-    var images = document.getElementsByTagName('img');
-    var l = images.length;
-    for (var i = 0; i < l; i++) {
-        images[0].parentNode.removeChild(images[0]);
-    }
+function clearImages() {
+    resultsContainer.innerHTML = '';
 }
